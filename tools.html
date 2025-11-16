@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BusinessOS — Tools</title>
+
+<style>
+:root {
+  --accent: #4aa8ff;
+  --radius: 14px;
+  --transition: 0.25s;
+
+  --light-bg: #f4f6fa;
+  --light-fg: #1a1d26;
+  --light-card: #ffffff;
+  --light-border: rgba(0,0,0,0.1);
+
+  --dark-bg: #0e1117;
+  --dark-fg: #e8ecf2;
+  --dark-card: #161b22;
+  --dark-border: rgba(255,255,255,0.08);
+}
+
+/* Basic */
+body {
+  margin: 0;
+  font-family: system-ui, Inter, sans-serif;
+  transition: var(--transition);
+}
+
+/* THEMING */
+body.light {
+  background: var(--light-bg);
+  color: var(--light-fg);
+}
+body.light .card {
+  background: var(--light-card);
+  border: 1px solid var(--light-border);
+}
+body.light .sidebar {
+  background: #ffffff;
+  border-right: 1px solid var(--light-border);
+}
+
+body.dark {
+  background: var(--dark-bg);
+  color: var(--dark-fg);
+}
+body.dark .card {
+  background: var(--dark-card);
+  border: 1px solid var(--dark-border);
+}
+body.dark .sidebar {
+  background: #11151d;
+  border-right: 1px solid var(--dark-border);
+}
+
+/* Layout */
+.layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 240px;
+  padding: 2rem 1rem;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-decoration: none;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  color: inherit;
+  margin-bottom: 0.4rem;
+  transition: var(--transition);
+}
+.nav-link:hover {
+  background: rgba(74,168,255,0.15);
+  color: var(--accent);
+}
+
+.main {
+  margin-left: 240px;
+  padding: 2rem;
+  width: calc(100% - 240px);
+}
+
+/* Cards */
+.card {
+  padding: 2rem;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+
+textarea, input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-top: 0.8rem;
+  border-radius: var(--radius);
+  border: none;
+  background: rgba(255,255,255,0.07);
+  color: inherit;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+button:hover { opacity: 0.85; }
+
+.output {
+  margin-top: 1rem;
+  white-space: pre-wrap;
+  background: rgba(255,255,255,0.07);
+  padding: 1rem;
+  border-radius: var(--radius);
+}
+
+.flex {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+}
+.card-half {
+  flex: 1 1 calc(50% - 1.5rem);
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    left: -260px;
+  }
+  .sidebar.open {
+    left: 0;
+  }
+  .main {
+    margin-left: 0;
+    width: 100%;
+  }
+  .menu-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    border-radius: var(--radius);
+    color: #fff;
+    margin-bottom: 1rem;
+    cursor: pointer;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<script>
+if (localStorage.getItem("theme")) {
+  document.body.className = localStorage.getItem("theme");
+} else {
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.body.className = prefersDark ? "dark" : "light";
+}
+</script>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <h2>BusinessOS</h2>
+    <a href="index.html" class="nav-link">🏠 Home</a>
+    <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+    <a href="tools.html" class="nav-link">🧰 Tools</a>
+    <a href="brandkit.html" class="nav-link">🎨 Brand Kit</a>
+    <a href="planner.html" class="nav-link">🗓 Planner</a>
+    <a href="workspace.html" class="nav-link">📁 Workspace</a>
+    <a href="settings.html" class="nav-link">⚙️ Settings</a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="menu-btn" onclick="toggleMenu()">☰ Menu</div>
+
+    <h1>Business Tools</h1>
+    <p>A suite of offline generators, planners, and creators. Everything runs locally in your browser.</p>
+
+    <!-- TOOL GRID -->
+    <div class="flex">
+
+      <!-- Business Plan -->
+      <div class="card card-half">
+        <h2>Business Plan Generator</h2>
+        <textarea id="bp-input" placeholder="Describe your business..."></textarea>
+        <button onclick="generateBusinessPlan()">Generate</button>
+        <div id="bp-output" class="output"></div>
+      </div>
+
+      <!-- Pricing -->
+      <div class="card card-half">
+        <h2>Pricing Sheet Builder</h2>
+        <textarea id="price-input" placeholder="List services or products..."></textarea>
+        <button onclick="generatePricing()">Generate</button>
+        <div id="price-output" class="output"></div>
+      </div>
+
+      <!-- Marketing Calendar -->
+      <div class="card card-half">
+        <h2>Marketing Calendar</h2>
+        <input id="mc-topic" placeholder="Topic or niche..." />
+        <button onclick="generateCalendar()">Generate</button>
+        <div id="mc-output" class="output"></div>
+      </div>
+
+      <!-- Content System -->
+      <div class="card card-half">
+        <h2>Content System Builder</h2>
+        <input id="content-topic" placeholder="Primary theme..." />
+        <button onclick="generateContent()">Generate</button>
+        <div id="content-output" class="output"></div>
+      </div>
+
+      <!-- Document Generator -->
+      <div class="card card-half">
+        <h2>Document Generator</h2>
+        <textarea id="doc-input" placeholder="Document topic..."></textarea>
+        <button onclick="generateDocument()">Generate</button>
+        <div id="doc-output" class="output"></div>
+      </div>
+
+      <!-- Brand Voice -->
+      <div class="card card-half">
+        <h2>Brand Voice Creator</h2>
+        <input id="voice-topic" placeholder="Brand or persona..." />
+        <button onclick="generateVoice()">Generate</button>
+        <div id="voice-output" class="output"></div>
+      </div>
+
+    </div>
+
+    <footer style="margin-top:2rem; opacity:0.4;">
+      Designed by <strong>Cornelius Aurelius</strong>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+function toggleMenu() {
+  document.getElementById("sidebar").classList.toggle("open");
+}
+
+/* BUSINESS PLAN */
+function generateBusinessPlan() {
+  const text = document.getElementById("bp-input").value || "Your business";
+  const out = `
+EXECUTIVE SUMMARY
+${text} provides a clear solution to customer needs.
+
+MISSION
+Deliver value, efficiency, and consistent results.
+
+MARKET
+A defined audience with strong demand and spending capability.
+
+OFFER
+Structured mix of core services, add-ons, and scalable upgrades.
+
+OPERATIONS
+Streamlined workflows enabling scalable delivery.
+
+FINANCIALS
+Recurring revenue, predictable margins, and growth strategy.
+`;
+  document.getElementById("bp-output").textContent = out;
+}
+
+/* PRICING */
+function generatePricing() {
+  const items = document.getElementById("price-input").value
+    .split("\n")
+    .filter(x => x.trim() !== "");
+
+  let out = "PRICING SHEET\n\n";
+  items.forEach(i => {
+    out += `${i}: £${(Math.random()*900 + 100).toFixed(0)}\n`;
+  });
+
+  document.getElementById("price-output").textContent = out;
+}
+
+/* MARKETING CALENDAR */
+function generateCalendar() {
+  const t = document.getElementById("mc-topic").value || "Your Topic";
+  let out = "30-DAY MARKETING CALENDAR\n\n";
+  for (let i = 1; i <= 30; i++) {
+    out += `Day ${i}: Content about ${t}.\n`;
+  }
+  document.getElementById("mc-output").textContent = out;
+}
+
+/* CONTENT SYSTEM */
+function generateContent() {
+  const t = document.getElementById("content-topic").value || "your theme";
+  const out = `
+CONTENT SYSTEM — ${t.toUpperCase()}
+
+PILLARS
+• Education
+• Actionable Tips
+• Inspiration
+• Behind the Scenes
+• Case Studies
+
+WEEKLY STRUCTURE
+Mon: Education
+Tue: Tips
+Wed: Story
+Thu: Case Study
+Fri: Quick Win
+Sat: Long Form
+Sun: Recap
+`;
+  document.getElementById("content-output").textContent = out;
+}
+
+/* DOCUMENT GENERATOR */
+function generateDocument() {
+  const t = document.getElementById("doc-input").value || "General Document";
+  const out = `
+DOCUMENT: ${t.toUpperCase()}
+
+INTRODUCTION
+This document outlines the key structure and details of ${t}.
+
+SECTIONS
+1. Purpose
+2. Requirements
+3. Scope
+4. Guidelines
+5. Summary
+`;
+  document.getElementById("doc-output").textContent = out;
+}
+
+/* BRAND VOICE */
+function generateVoice() {
+  const t = document.getElementById("voice-topic").value || "Your Brand";
+  const out = `
+BRAND VOICE — ${t}
+
+STYLE
+• Confident
+• Helpful
+• Modern
+• Authentic
+
+TONE
+• Direct yet friendly
+• High-value communication
+• Trust-building
+`;
+  document.getElementById("voice-output").textContent = out;
+}
+</script>
+
+</body>
+</html>
