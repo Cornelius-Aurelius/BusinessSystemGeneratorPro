@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BusinessOS — Workspace</title>
+
+<style>
+:root {
+  --accent: #4aa8ff;
+  --radius: 14px;
+  --transition: 0.25s;
+
+  --light-bg: #f4f6fa;
+  --light-fg: #1a1d26;
+  --light-card: #ffffff;
+  --light-border: rgba(0,0,0,0.1);
+
+  --dark-bg: #0e1117;
+  --dark-fg: #e8ecf2;
+  --dark-card: #161b22;
+  --dark-border: rgba(255,255,255,0.08);
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, Inter, sans-serif;
+  transition: var(--transition);
+}
+
+/* THEMING */
+body.light { background: var(--light-bg); color: var(--light-fg); }
+body.light .card { background: var(--light-card); border: 1px solid var(--light-border); }
+body.light .sidebar { background: #ffffff; border-right: 1px solid var(--light-border); }
+
+body.dark { background: var(--dark-bg); color: var(--dark-fg); }
+body.dark .card { background: var(--dark-card); border: 1px solid var(--dark-border); }
+body.dark .sidebar { background: #11151d; border-right: 1px solid var(--dark-border); }
+
+/* Layout */
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 240px;
+  padding: 2rem 1rem;
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  overflow-y: auto;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-decoration: none;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  color: inherit;
+  margin-bottom: 0.4rem;
+  transition: var(--transition);
+}
+.nav-link:hover { background: rgba(74,168,255,0.15); color: var(--accent); }
+
+.main {
+  margin-left: 240px;
+  padding: 2rem;
+  width: calc(100% - 240px);
+}
+
+/* Cards */
+.card {
+  padding: 2rem;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+
+/* Inputs */
+textarea, input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-top: 0.8rem;
+  border-radius: var(--radius);
+  border: none;
+  background: rgba(255,255,255,0.07);
+  color: inherit;
+}
+
+/* Buttons */
+button {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-weight: 600;
+  transition: var(--transition);
+}
+button:hover { opacity: 0.85; }
+
+/* Task List */
+.task-item {
+  padding: 0.6rem 1rem;
+  border-radius: var(--radius);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 0.6rem;
+  background: rgba(255,255,255,0.08);
+}
+.task-done { text-decoration: line-through; opacity: 0.5; }
+
+/* Projects */
+.project-board {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+}
+
+.project-column {
+  min-width: 240px;
+  background: rgba(255,255,255,0.07);
+  padding: 1rem;
+  border-radius: var(--radius);
+}
+
+.column-title {
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .sidebar { left: -260px; }
+  .sidebar.open { left: 0; }
+  .main { margin-left: 0; width: 100%; }
+
+  .menu-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    color: #fff;
+    border-radius: var(--radius);
+    cursor: pointer;
+    margin-bottom: 1rem;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<script>
+if (localStorage.getItem("theme")) {
+  document.body.className = localStorage.getItem("theme");
+} else {
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.body.className = prefersDark ? "dark" : "light";
+}
+</script>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <h2>BusinessOS</h2>
+    <a href="index.html" class="nav-link">🏠 Home</a>
+    <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+    <a href="tools.html" class="nav-link">🧰 Tools</a>
+    <a href="brandkit.html" class="nav-link">🎨 Brand Kit</a>
+    <a href="planner.html" class="nav-link">🗓 Planner</a>
+    <a href="workspace.html" class="nav-link">📁 Workspace</a>
+    <a href="settings.html" class="nav-link">⚙️ Settings</a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="menu-btn" onclick="toggleMenu()">☰ Menu</div>
+
+    <h1>Workspace</h1>
+    <p>Your personal business workspace — tasks, notes, projects, and more. All data stays private in your browser.</p>
+
+    <!-- NOTES -->
+    <div class="card">
+      <h2>Notes</h2>
+      <textarea id="notes" placeholder="Write your notes here..."></textarea>
+    </div>
+
+    <!-- TASKS -->
+    <div class="card">
+      <h2>Tasks</h2>
+      <input id="task-input" placeholder="New task..." />
+      <button onclick="addTask()">Add Task</button>
+      <div id="task-list"></div>
+    </div>
+
+    <!-- PROJECT BOARD -->
+    <div class="card">
+      <h2>Project Board</h2>
+      <div class="project-board">
+        <div class="project-column">
+          <div class="column-title">To Do</div>
+          <div id="todo-col"></div>
+        </div>
+        <div class="project-column">
+          <div class="column-title">In Progress</div>
+          <div id="progress-col"></div>
+        </div>
+        <div class="project-column">
+          <div class="column-title">Done</div>
+          <div id="done-col"></div>
+        </div>
+      </div>
+      <input id="project-input" placeholder="New project task..." />
+      <button onclick="addProject()">Add to 'To Do'</button>
+    </div>
+
+    <footer style="margin-top:2rem; opacity:0.4;">
+      Designed by <strong>Cornelius Aurelius</strong>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+function toggleMenu() {
+  document.getElementById("sidebar").classList.toggle("open");
+}
+
+/* NOTES (Auto Save) */
+const notesEl = document.getElementById("notes");
+notesEl.value = localStorage.getItem("bos_notes") || "";
+notesEl.addEventListener("input", () => {
+  localStorage.setItem("bos_notes", notesEl.value);
+});
+
+/* TASKS */
+let tasks = JSON.parse(localStorage.getItem("bos_tasks") || "[]");
+
+function renderTasks() {
+  const container = document.getElementById("task-list");
+  container.innerHTML = "";
+
+  tasks.forEach((t, i) => {
+    const div = document.createElement("div");
+    div.className = "task-item";
+
+    const label = document.createElement("span");
+    label.textContent = t.text;
+    if (t.done) label.className = "task-done";
+
+    const btn = document.createElement("button");
+    btn.textContent = t.done ? "Undo" : "Done";
+    btn.style.padding = "0.3rem 0.6rem";
+    btn.onclick = () => {
+      tasks[i].done = !tasks[i].done;
+      saveTasks();
+    };
+
+    const del = document.createElement("button");
+    del.textContent = "✕";
+    del.style.padding = "0.3rem 0.6rem";
+    del.onclick = () => {
+      tasks.splice(i, 1);
+      saveTasks();
+    };
+
+    div.appendChild(label);
+    div.appendChild(btn);
+    div.appendChild(del);
+
+    container.appendChild(div);
+  });
+}
+
+function saveTasks() {
+  localStorage.setItem("bos_tasks", JSON.stringify(tasks));
+  renderTasks();
+}
+
+function addTask() {
+  const input = document.getElementById("task-input");
+  const text = input.value.trim();
+  if (text === "") return;
+  tasks.push({ text, done:false });
+  input.value = "";
+  saveTasks();
+}
+
+renderTasks();
+
+/* PROJECT BOARD */
+let board = JSON.parse(localStorage.getItem("bos_board") || '{"todo":[],"progress":[],"done":[]}');
+
+function renderBoard() {
+  document.getElementById("todo-col").innerHTML =
+    board.todo.map((t,i)=>taskHTML("todo",i,t)).join("");
+  document.getElementById("progress-col").innerHTML =
+    board.progress.map((t,i)=>taskHTML("progress",i,t)).join("");
+  document.getElementById("done-col").innerHTML =
+    board.done.map((t,i)=>taskHTML("done",i,t)).join("");
+}
+
+function taskHTML(column, index, text) {
+  return `
+    <div class="task-item">
+      <span>${text}</span>
+      <div>
+        ${column !== "todo" ? `<button onclick="moveTask('${column}',${index},'todo')">↤</button>` : ""}
+        ${column !== "done" ? `<button onclick="moveTask('${column}',${index},'done')">↦</button>` : ""}
+        <button onclick="delProject('${column}',${index})">✕</button>
+      </div>
+    </div>
+  `;
+}
+
+function moveTask(from, index, to) {
+  const t = board[from][index];
+  board[from].splice(index,1);
+  board[to].push(t);
+  saveBoard();
+}
+
+function delProject(col,index) {
+  board[col].splice(index,1);
+  saveBoard();
+}
+
+function saveBoard() {
+  localStorage.setItem("bos_board", JSON.stringify(board));
+  renderBoard();
+}
+
+function addProject() {
+  const input = document.getElementById("project-input");
+  const text = input.value.trim();
+  if (!text) return;
+  board.todo.push(text);
+  input.value = "";
+  saveBoard();
+}
+
+renderBoard();
+</script>
+
+</body>
+</html>
