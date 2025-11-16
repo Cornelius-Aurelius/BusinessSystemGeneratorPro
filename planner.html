@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BusinessOS — Planner</title>
+
+<style>
+:root {
+  --accent: #4aa8ff;
+  --radius: 14px;
+  --transition: 0.25s;
+
+  --light-bg: #f4f6fa;
+  --light-fg: #1a1d26;
+  --light-card: #ffffff;
+  --light-border: rgba(0,0,0,0.1);
+
+  --dark-bg: #0e1117;
+  --dark-fg: #e8ecf2;
+  --dark-card: #161b22;
+  --dark-border: rgba(255,255,255,0.08);
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, Inter, sans-serif;
+  transition: var(--transition);
+}
+
+/* THEMING */
+body.light { background: var(--light-bg); color: var(--light-fg); }
+body.light .card { background: var(--light-card); border: 1px solid var(--light-border); }
+body.light .sidebar { background: #ffffff; border-right: 1px solid var(--light-border); }
+
+body.dark { background: var(--dark-bg); color: var(--dark-fg); }
+body.dark .card { background: var(--dark-card); border: 1px solid var(--dark-border); }
+body.dark .sidebar { background: #11151d; border-right: 1px solid var(--dark-border); }
+
+/* Layout */
+.layout { display: flex; min-height: 100vh; }
+
+.sidebar {
+  width: 240px;
+  padding: 2rem 1rem;
+  position: fixed;
+  top: 0; bottom: 0; left: 0;
+  overflow-y: auto;
+}
+
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  text-decoration: none;
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius);
+  color: inherit;
+  margin-bottom: 0.4rem;
+  transition: var(--transition);
+}
+.nav-link:hover { background: rgba(74,168,255,0.15); color: var(--accent); }
+
+.main {
+  margin-left: 240px;
+  padding: 2rem;
+  width: calc(100% - 240px);
+}
+
+/* Cards */
+.card {
+  padding: 2rem;
+  border-radius: var(--radius);
+  margin-bottom: 1.5rem;
+}
+
+textarea, input {
+  width: 100%;
+  padding: 0.8rem;
+  margin-top: 0.8rem;
+  border-radius: var(--radius);
+  border: none;
+  background: rgba(255,255,255,0.07);
+  color: inherit;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.8rem 1rem;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: var(--transition);
+}
+button:hover { opacity: 0.85; }
+
+.output {
+  margin-top: 1rem;
+  white-space: pre-wrap;
+  background: rgba(255,255,255,0.07);
+  padding: 1rem;
+  border-radius: var(--radius);
+}
+
+/* Columns */
+.flex { display: flex; flex-wrap: wrap; gap: 1.5rem; }
+.card-half { flex: 1 1 calc(50% - 1.5rem); }
+
+/* Mobile */
+@media (max-width: 900px) {
+  .sidebar { left: -260px; }
+  .sidebar.open { left: 0; }
+  .main { margin-left: 0; width: 100%; }
+
+  .menu-btn {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    background: var(--accent);
+    border-radius: var(--radius);
+    color: #fff;
+    cursor: pointer;
+    margin-bottom: 1rem;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<script>
+if (localStorage.getItem("theme")) {
+  document.body.className = localStorage.getItem("theme");
+} else {
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  document.body.className = prefersDark ? "dark" : "light";
+}
+</script>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <nav class="sidebar" id="sidebar">
+    <h2>BusinessOS</h2>
+    <a href="index.html" class="nav-link">🏠 Home</a>
+    <a href="dashboard.html" class="nav-link">📊 Dashboard</a>
+    <a href="tools.html" class="nav-link">🧰 Tools</a>
+    <a href="brandkit.html" class="nav-link">🎨 Brand Kit</a>
+    <a href="planner.html" class="nav-link">🗓 Planner</a>
+    <a href="workspace.html" class="nav-link">📁 Workspace</a>
+    <a href="settings.html" class="nav-link">⚙️ Settings</a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main">
+
+    <div class="menu-btn" onclick="toggleMenu()">☰ Menu</div>
+
+    <h1>Marketing & Content Planner</h1>
+    <p>Plan content, launches, themes, campaigns and get instant structured output.</p>
+
+    <div class="flex">
+
+      <!-- 30-Day Calendar -->
+      <div class="card card-half">
+        <h2>30-Day Marketing Plan</h2>
+        <input id="m-topic" placeholder="Topic or offer..." />
+        <button onclick="generate30()">Generate</button>
+        <div id="m-output" class="output"></div>
+      </div>
+
+      <!-- Weekly Content Planner -->
+      <div class="card card-half">
+        <h2>Weekly Content Planner</h2>
+        <input id="w-theme" placeholder="Main weekly theme..." />
+        <button onclick="generateWeekly()">Generate</button>
+        <div id="w-output" class="output"></div>
+      </div>
+
+      <!-- Content Ideas -->
+      <div class="card card-half">
+        <h2>Content Idea Generator</h2>
+        <input id="idea-topic" placeholder="Your niche or product..." />
+        <button onclick="generateIdeas()">Generate</button>
+        <div id="idea-output" class="output"></div>
+      </div>
+
+      <!-- Launch Planner -->
+      <div class="card card-half">
+        <h2>Launch Planner</h2>
+        <input id="launch-name" placeholder="Launch name or offer..." />
+        <button onclick="generateLaunch()">Generate</button>
+        <div id="launch-output" class="output"></div>
+      </div>
+
+    </div>
+
+    <footer style="margin-top:2rem; opacity:0.4;">
+      Designed by <strong>Cornelius Aurelius</strong>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+function toggleMenu() {
+  document.getElementById("sidebar").classList.toggle("open");
+}
+
+/* 30-Day Plan */
+function generate30() {
+  const t = document.getElementById("m-topic").value || "your topic";
+  let out = "30-DAY MARKETING PLAN\n\n";
+  for (let i = 1; i <= 30; i++) {
+    out += `Day ${i}: Content focused on ${t}.\n`;
+  }
+  document.getElementById("m-output").textContent = out;
+}
+
+/* Weekly Planner */
+function generateWeekly() {
+  const t = document.getElementById("w-theme").value || "your theme";
+  const out = `
+WEEKLY CONTENT PLAN — ${t.toUpperCase()}
+
+Mon: Educational value post  
+Tue: Actionable tip  
+Wed: Story or behind-the-scenes  
+Thu: Case study  
+Fri: Quick win  
+Sat: Long form  
+Sun: Recap
+`;
+  document.getElementById("w-output").textContent = out;
+}
+
+/* Ideas */
+function generateIdeas() {
+  const t = document.getElementById("idea-topic").value || "your niche";
+  const out = `
+CONTENT IDEAS FOR ${t.toUpperCase()}
+
+• “5 mistakes people make with ${t}”
+• “Beginner’s guide to ${t}”
+• “Advanced techniques for ${t}”
+• “Why ${t} matters in 2024”
+• “The truth about ${t} nobody mentions”
+• “Top 10 tools for ${t}”
+`;
+  document.getElementById("idea-output").textContent = out;
+}
+
+/* Launch Planner */
+function generateLaunch() {
+  const t = document.getElementById("launch-name").value || "your offer";
+  const out = `
+LAUNCH PLAN — ${t.toUpperCase()}
+
+PRE-LAUNCH
+• Build hype  
+• Collect leads  
+• Publish teasers  
+• Start countdown  
+
+LAUNCH WEEK
+• Announce offer  
+• Daily value posts  
+• Testimonials  
+• Go live  
+
+POST-LAUNCH
+• Collect feedback  
+• Share results  
+• Offer bonuses  
+• Plan next cycle  
+`;
+  document.getElementById("launch-output").textContent = out;
+}
+</script>
+
+</body>
+</html>
