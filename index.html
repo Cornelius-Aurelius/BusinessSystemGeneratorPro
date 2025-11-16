@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>All-In-One Business System Generator</title>
+<meta name="description" content="A fully client-side business system generator that creates business plans, pricing sheets, branding kits, marketing calendars, content plans, and downloadable business documents.">
+<meta name="keywords" content="business generator, client-side tool, business planner, pricing generator, marketing calendar, branding kit">
+
+<style>
+:root {
+  --bg: #0d0f15;
+  --fg: #e8ecf2;
+  --accent: #4aa8ff;
+  --card: rgba(255,255,255,0.08);
+  --radius: 18px;
+  --shadow: 0 8px 26px rgba(0,0,0,0.35);
+  font-family: system-ui, Inter, sans-serif;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-size: clamp(14px, 1.4vw, 18px);
+  overflow-x: hidden;
+}
+
+/* Hero */
+.hero {
+  min-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 6vw 5vw;
+  position: relative;
+}
+
+.hero h1 {
+  font-size: clamp(2.6rem, 7vw, 6rem);
+  font-weight: 800;
+  line-height: 1.1;
+  background: linear-gradient(90deg, #ffffff, #4aa8ff);
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.hero p {
+  margin-top: 1.8rem;
+  opacity: 0.92;
+  max-width: 650px;
+  font-size: clamp(1rem, 1.7vw, 1.3rem);
+}
+
+.btn {
+  margin-top: 2.4rem;
+  padding: 1rem 2rem;
+  border-radius: var(--radius);
+  background: linear-gradient(135deg, #1f6aff, #4aa8ff);
+  color: white;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  min-height: 44px;
+  transition: 0.3s;
+}
+.btn:hover { opacity: 0.85; }
+
+/* Orb */
+.orb {
+  position: absolute;
+  top: -20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: radial-gradient(circle, rgba(74,168,255,0.18), transparent 70%);
+  filter: blur(70px);
+  animation: float 11s infinite alternate ease-in-out;
+}
+@keyframes float {
+  from { transform: translateY(-18px); }
+  to { transform: translateY(18px); }
+}
+
+/* Section */
+.section { padding: 8vw 5vw; }
+
+.section h2 {
+  font-size: clamp(1.8rem, 3.4vw, 2.8rem);
+  margin-bottom: 2rem;
+}
+
+/* Tools Grid */
+.grid {
+  display: grid;
+  gap: 2rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(350px, 100%), 1fr));
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 2rem;
+  border-radius: var(--radius);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+  transition: 0.3s;
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(255,255,255,0.16);
+}
+
+textarea, select, input {
+  width: 100%;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--fg);
+  padding: 1rem;
+  border-radius: var(--radius);
+  resize: vertical;
+  margin-top: 1rem;
+}
+
+.generate-btn {
+  width: 100%;
+  margin-top: 1.4rem;
+  padding: 0.9rem;
+  border-radius: var(--radius);
+  border: none;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  transition: 0.3s;
+}
+.generate-btn:hover { opacity: 0.85; }
+
+.output {
+  margin-top: 1.3rem;
+  padding: 1rem;
+  white-space: pre-wrap;
+  background: rgba(255,255,255,0.06);
+  border-radius: var(--radius);
+  border: 1px solid rgba(255,255,255,0.12);
+  min-height: 120px;
+}
+
+footer {
+  text-align: center;
+  padding: 4vw;
+  opacity: 0.45;
+  font-size: 0.9rem;
+}
+</style>
+</head>
+
+<body>
+
+<section class="hero">
+  <div class="orb"></div>
+
+  <h1>All-In-One Business System Generator</h1>
+  <p>Create business plans, pricing sheets, branding kits, marketing calendars, content systems and exportable documents — all generated instantly in your browser.</p>
+  <button class="btn" onclick="scrollToSection('tools')">Start Using the Tools</button>
+</section>
+
+<section id="tools" class="section">
+  <h2>Interactive Business Tools</h2>
+
+  <div class="grid">
+
+    <!-- Business Plan Generator -->
+    <div class="card">
+      <h3>Business Plan Generator</h3>
+      <textarea id="bp-input" placeholder="Describe your business..."></textarea>
+      <button class="generate-btn" onclick="generateBusinessPlan()">Generate</button>
+      <div id="bp-output" class="output"></div>
+    </div>
+
+    <!-- Pricing Sheet Generator -->
+    <div class="card">
+      <h3>Pricing Sheet Builder</h3>
+      <textarea id="price-input" placeholder="List services/products..."></textarea>
+      <button class="generate-btn" onclick="generatePricing()">Generate</button>
+      <div id="price-output" class="output"></div>
+    </div>
+
+    <!-- Brand Kit -->
+    <div class="card">
+      <h3>Brand Kit Creator</h3>
+      <input id="brand-name" placeholder="Brand Name" />
+      <button class="generate-btn" onclick="generateBrandKit()">Generate</button>
+      <div id="brand-output" class="output"></div>
+    </div>
+
+    <!-- Marketing Calendar -->
+    <div class="card">
+      <h3>Marketing Calendar Generator</h3>
+      <input id="mc-topic" placeholder="Topic or niche..." />
+      <button class="generate-btn" onclick="generateCalendar()">Generate</button>
+      <div id="mc-output" class="output"></div>
+    </div>
+
+    <!-- Social Content Builder -->
+    <div class="card">
+      <h3>Content System Builder</h3>
+      <input id="content-topic" placeholder="Primary theme..." />
+      <button class="generate-btn" onclick="generateContent()">Generate</button>
+      <div id="content-output" class="output"></div>
+    </div>
+
+  </div>
+</section>
+
+<footer>
+  Crafted subtly by <strong>Cornelius Aurelius</strong>
+</footer>
+
+<script>
+function scrollToSection(id){
+  document.getElementById(id).scrollIntoView({behavior:"smooth"});
+}
+
+/* Business Plan Generator */
+function generateBusinessPlan() {
+  const text = document.getElementById("bp-input").value || "Your business";
+  const out = `
+EXECUTIVE SUMMARY
+${text} solves a real problem with a clear, scalable solution.
+
+MISSION
+Deliver value with consistency, innovation and customer focus.
+
+MARKET
+Defined audience with growing demand and clear spending capacity.
+
+OFFER
+A structured mix of core services, add-ons, and upsells.
+
+OPERATIONS
+Simple, efficient workflow that can scale with minimal overhead.
+
+FINANCE
+Focus on recurring revenue, healthy margins, and predictable growth.
+
+STRATEGY
+Use marketing, branding, and automation to establish long-term advantage.
+`;
+  document.getElementById("bp-output").textContent = out;
+}
+
+/* Pricing Sheet */
+function generatePricing() {
+  const input = document.getElementById("price-input").value || "Service";
+  const items = input.split("\n").filter(x => x.trim() !== "");
+  let out = "PRICING SHEET\n\n";
+  items.forEach(i => out += `${i}: £${(Math.random()*900+100).toFixed(0)}\n`);
+  document.getElementById("price-output").textContent = out;
+}
+
+/* Brand Kit */
+function generateBrandKit() {
+  const name = document.getElementById("brand-name").value || "Brand";
+  const palette = [
+    "#3AA6FF","#6BCBFF","#1F6AFF","#0D1B2A","#E1E5F2"
+  ];
+  const fonts = ["Inter", "Montserrat", "Lato", "Poppins"];
+  const out = `
+BRAND NAME
+${name}
+
+COLOR PALETTE
+${palette.join(", ")}
+
+TYPOGRAPHY
+Primary font: ${fonts[Math.floor(Math.random()*fonts.length)]}
+
+BRAND TONE
+Confident, modern, helpful, authoritative.
+`;
+  document.getElementById("brand-output").textContent = out;
+}
+
+/* Marketing Calendar */
+function generateCalendar() {
+  const topic = document.getElementById("mc-topic").value || "Your Topic";
+  let out = "30-DAY MARKETING CALENDAR\n\n";
+  for (let i=1;i<=30;i++){
+    out += `Day ${i}: Content about ${topic} — Tips, insights, story, or value post.\n`;
+  }
+  document.getElementById("mc-output").textContent = out;
+}
+
+/* Content System */
+function generateContent() {
+  const t = document.getElementById("content-topic").value || "Your Theme";
+  const out = `
+CONTENT SYSTEM — ${t.toUpperCase()}
+
+PILLARS
+1. Education
+2. Inspiration
+3. Case Studies
+4. Behind the Scenes
+5. Actionable Tips
+
+FORMATS
+• Short Posts
+• Carousels
+• Videos
+• Guides
+• Lists
+
+WEEKLY STRUCTURE
+Mon: Educational post about ${t}
+Tue: Actionable tip
+Wed: Story or behind the scenes
+Thu: Case study
+Fri: Quick win idea
+Sat: Long form piece
+Sun: Recap
+`;
+  document.getElementById("content-output").textContent = out;
+}
+</script>
+
+</body>
+</html>
